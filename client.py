@@ -11,9 +11,10 @@ import calendar
 import binascii
 import re
 import copy
-import pycrc
+from pycrc.algorithms import Crc
 
-import flexnet.file
+# import flexnet.file
+import file
 
 HEADERLEN = 20
 TYPE_REQLIC1 = 0x004e # response: license status (vendor)
@@ -40,7 +41,7 @@ VER_NEW = (11, 10)
 
 CRCWIDTH = 14
 CRCPOLY = 0x2e97
-crc = pycrc.Crc(width=CRCWIDTH, poly=CRCPOLY, reflect_in=True, xor_in=0, reflect_out=True, xor_out=0)
+crc = Crc(width=CRCWIDTH, poly=CRCPOLY, reflect_in=True, xor_in=0, reflect_out=True, xor_out=0)
 
 class _Client(object):
     """Base class for both server types"""
@@ -225,7 +226,7 @@ class _Client(object):
         header = header.ljust(16, '\x00')
 
         return chr(0x2f) + self._checkbytes(header+data) + header
-    
+
     def _checkbytes(self, data):
         # CRC is packed in 2 bytes, big-endian
         crc_val = crc.table_driven(map(ord, data))
